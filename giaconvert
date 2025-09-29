@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# GIACONVERT - Word to HTML converter
+# Usage: ./giaconvert /path/to/directory
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+
+if [ $# -eq 0 ]; then
+    echo "GIACONVERT - Word to HTML Converter"
+    echo "==================================="
+    echo ""
+    echo "Usage: $0 <directory> [--verbose]"
+    echo ""
+    echo "Examples:"
+    echo "  $0 ~/Documents"
+    echo "  $0 ~/Projects/MyDocs --verbose"
+    echo ""
+    echo "This tool will find all Word documents (.docx) in the specified"
+    echo "directory and its subdirectories, then convert them to HTML format."
+    exit 1
+fi
+
+# Run the Python script with all arguments
+python3 "$SCRIPT_DIR/giaconvert.py" "$@"
