@@ -52,5 +52,9 @@ Thumbs.db
 ~$*.docx
 ~$*.doc
 
+# Generated test files (keep source test documents, ignore outputs)
+test_documents/*_images/
+test_documents/*.html
+
 # Log files
 *.log
