@@ -102,13 +102,13 @@
                         <!-- Individual Files -->
                         <div class="space-y-4">
                             <h3 class="text-lg font-semibold text-gray-800">Individual Files</h3>
-                            <p class="text-sm text-gray-600">Select one or more .docx files</p>
+                            <p class="text-sm text-gray-600">Select one or more Word documents (.doc or .docx)</p>
                             
                             <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
                                 <input type="file" 
                                        ref="fileInput"
                                        @change="handleFileSelection"
-                                       accept=".docx"
+                                       accept=".docx,.doc"
                                        multiple
                                        class="hidden">
                                        
@@ -123,7 +123,7 @@
                                         </button>
                                         or drag and drop
                                     </div>
-                                    <p class="text-xs text-gray-500">Word documents (.docx) only</p>
+                                    <p class="text-xs text-gray-500">Word documents (.doc and .docx)</p>
                                 </div>
                             </div>
                         </div>
@@ -150,7 +150,7 @@
                                             Choose folder
                                         </button>
                                     </div>
-                                    <p class="text-xs text-gray-500">All .docx files in folder and subfolders</p>
+                                    <p class="text-xs text-gray-500">All Word documents (.doc and .docx) in folder and subfolders</p>
                                 </div>
                             </div>
                         </div>
@@ -161,7 +161,10 @@
                 <div v-if="selectedFiles.length > 0" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-semibold text-gray-800">
-                            Selected Files ({{ docxFiles.length }})
+                            Selected Files ({{ docxFiles.length }} Word documents)
+                            <span v-if="selectedFiles.length !== docxFiles.length" class="text-sm text-gray-500">
+                                ({{ selectedFiles.length }} total files)
+                            </span>
                         </h3>
                         <button @click="clearFiles" class="text-red-500 hover:text-red-700 text-sm">
                             Clear All
