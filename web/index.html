@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIACONVERT - Word to HTML Converter</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Vue.js 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/app.css">
+    
+    <!-- Tailwind Custom Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#3b82f6',
+                        'primary-dark': '#1d4ed8',
+                        'secondary': '#64748b',
+                        'success': '#10b981',
+                        'warning': '#f59e0b',
+                        'error': '#ef4444',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div id="app">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center">
+                        <h1 class="text-2xl font-bold text-primary">GIACONVERT</h1>
+                        <span class="ml-2 text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">v1.0</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-sm text-gray-600">
+                            Status: <span :class="serverStatusClass">{{ serverStatus }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            
+            <!-- Welcome Section -->
+            <div v-if="currentStep === 'welcome'" class="text-center mb-12">
+                <h2 class="text-3xl font-extrabold text-gray-900 mb-4">
+                    Convert Word Documents to HTML
+                </h2>
+                <p class="text-xl text-gray-600 mb-8">
+                    Professional document conversion with support for text, tables, images, and layouts
+                </p>
+                
+                <!-- Quick Start Cards -->
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <div class="text-blue-500 text-3xl mb-4">📄</div>
+                        <h3 class="font-semibold text-lg mb-2">Select Documents</h3>
+                        <p class="text-gray-600 text-sm">Choose individual files or entire folders</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <div class="text-green-500 text-3xl mb-4">⚙️</div>
+                        <h3 class="font-semibold text-lg mb-2">Choose Mode</h3>
+                        <p class="text-gray-600 text-sm">Basic, Enhanced, or Complete conversion</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <div class="text-purple-500 text-3xl mb-4">🚀</div>
+                        <h3 class="font-semibold text-lg mb-2">Convert & Download</h3>
+                        <p class="text-gray-600 text-sm">Fast, reliable conversion with progress tracking</p>
+                    </div>
+                </div>
+
+                <button @click="startConversion" 
+                        class="bg-primary hover:bg-primary-dark text-white font-medium py-3 px-8 rounded-lg transition-colors">
+                    Get Started
+                </button>
+            </div>
+
+            <!-- File Selection -->
+            <div v-if="currentStep === 'fileSelection'" class="space-y-8">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-bold text-gray-900">Select Documents</h2>
+                    <button @click="goBack" class="text-primary hover:text-primary-dark">← Back</button>
+                </div>
+
+                <!-- File Upload Options -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        
+                        <!-- Individual Files -->
+                        <div class="space-y-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Individual Files</h3>
+                            <p class="text-sm text-gray-600">Select one or more .docx files</p>
+                            
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+                                <input type="file" 
+                                       ref="fileInput"
+                                       @change="handleFileSelection"
+                                       accept=".docx"
+                                       multiple
+                                       class="hidden">
+                                       
+                                <div class="space-y-2">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <div class="text-sm text-gray-600">
+                                        <button @click="$refs.fileInput.click()" 
+                                                class="font-medium text-primary hover:text-primary-dark">
+                                            Choose files
+                                        </button>
+                                        or drag and drop
+                                    </div>
+                                    <p class="text-xs text-gray-500">Word documents (.docx) only</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Directory Selection -->
+                        <div class="space-y-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Entire Folder</h3>
+                            <p class="text-sm text-gray-600">Select a folder with all subfolders</p>
+                            
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+                                <input type="file" 
+                                       ref="folderInput"
+                                       @change="handleFolderSelection"
+                                       webkitdirectory
+                                       class="hidden">
+                                       
+                                <div class="space-y-2">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5l-2-2H5a2 2 0 00-2 2z"/>
+                                    </svg>
+                                    <div class="text-sm text-gray-600">
+                                        <button @click="$refs.folderInput.click()" 
+                                                class="font-medium text-primary hover:text-primary-dark">
+                                            Choose folder
+                                        </button>
+                                    </div>
+                                    <p class="text-xs text-gray-500">All .docx files in folder and subfolders</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selected Files Display -->
+                <div v-if="selectedFiles.length > 0" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            Selected Files ({{ docxFiles.length }})
+                        </h3>
+                        <button @click="clearFiles" class="text-red-500 hover:text-red-700 text-sm">
+                            Clear All
+                        </button>
+                    </div>
+                    
+                    <div class="max-h-64 overflow-y-auto space-y-2">
+                        <div v-for="file in docxFiles" :key="file.name" 
+                             class="flex items-center justify-between p-3 bg-gray-50 rounded border">
+                            <div class="flex items-center space-x-3">
+                                <svg class="h-5 w-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4z"/>
+                                </svg>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">{{ file.name }}</div>
+                                    <div class="text-xs text-gray-500">{{ formatFileSize(file.size) }}</div>
+                                </div>
+                            </div>
+                            <div v-if="file.webkitRelativePath" class="text-xs text-gray-500">
+                                {{ file.webkitRelativePath }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 flex justify-end">
+                        <button @click="proceedToSettings" 
+                                class="bg-primary hover:bg-primary-dark text-white font-medium py-2 px-6 rounded-lg transition-colors">
+                            Continue → Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conversion Settings -->
+            <div v-if="currentStep === 'settings'" class="space-y-8">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-bold text-gray-900">Conversion Settings</h2>
+                    <button @click="goBack" class="text-primary hover:text-primary-dark">← Back</button>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-8">
+                    
+                    <!-- Conversion Mode -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Conversion Mode</h3>
+                        
+                        <div class="space-y-3">
+                            <label v-for="(mode, key) in conversionModes" :key="key" 
+                                   class="flex items-start space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
+                                   :class="{ 'border-primary bg-blue-50': selectedMode === key }">
+                                <input type="radio" 
+                                       :value="key" 
+                                       v-model="selectedMode"
+                                       class="mt-1 text-primary">
+                                <div class="flex-1">
+                                    <div class="font-medium text-gray-900">{{ mode.name }}</div>
+                                    <div class="text-sm text-gray-600 mb-2">{{ mode.description }}</div>
+                                    <div class="flex flex-wrap gap-1">
+                                        <span v-for="feature in mode.features" :key="feature"
+                                              class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                                            {{ feature }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Output Options -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Output Location</h3>
+                        
+                        <div class="space-y-3">
+                            <label class="flex items-start space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
+                                   :class="{ 'border-primary bg-blue-50': outputOption === 'beside' }">
+                                <input type="radio" 
+                                       value="beside" 
+                                       v-model="outputOption"
+                                       class="mt-1 text-primary">
+                                <div>
+                                    <div class="font-medium text-gray-900">Save beside originals</div>
+                                    <div class="text-sm text-gray-600">HTML files saved in same location as Word documents</div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-start space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
+                                   :class="{ 'border-primary bg-blue-50': outputOption === 'mirrored' }">
+                                <input type="radio" 
+                                       value="mirrored" 
+                                       v-model="outputOption"
+                                       class="mt-1 text-primary">
+                                <div class="flex-1">
+                                    <div class="font-medium text-gray-900">Create mirrored directory structure</div>
+                                    <div class="text-sm text-gray-600 mb-2">Recreate folder structure with converted files</div>
+                                    <div v-if="outputOption === 'mirrored'" class="mt-2">
+                                        <input type="text" 
+                                               v-model="destinationPath"
+                                               placeholder="Choose destination folder..."
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary">
+                                    </div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-start space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
+                                   :class="{ 'border-primary bg-blue-50': outputOption === 'single_folder' }">
+                                <input type="radio" 
+                                       value="single_folder" 
+                                       v-model="outputOption"
+                                       class="mt-1 text-primary">
+                                <div class="flex-1">
+                                    <div class="font-medium text-gray-900">Save all files to selected folder</div>
+                                    <div class="text-sm text-gray-600 mb-2">All converted files in one location</div>
+                                    <div v-if="outputOption === 'single_folder'" class="mt-2">
+                                        <input type="text" 
+                                               v-model="destinationPath"
+                                               placeholder="Choose output folder..."
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary">
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Start Conversion Button -->
+                <div class="flex justify-end">
+                    <button @click="startDocumentConversion" 
+                            :disabled="!canStartConversion"
+                            class="bg-success hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-3 px-8 rounded-lg transition-colors">
+                        Start Conversion
+                    </button>
+                </div>
+            </div>
+
+            <!-- Conversion Progress -->
+            <div v-if="currentStep === 'progress'" class="space-y-8">
+                <h2 class="text-2xl font-bold text-gray-900">Converting Documents</h2>
+                
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <!-- Overall Progress -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-700">Overall Progress</span>
+                            <span class="text-sm text-gray-500">{{ Math.round(conversionProgress * 100) }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div class="bg-primary h-3 rounded-full transition-all duration-300" 
+                                 :style="{ width: conversionProgress * 100 + '%' }"></div>
+                        </div>
+                    </div>
+
+                    <!-- Current File -->
+                    <div v-if="currentFile" class="mb-4">
+                        <div class="text-sm text-gray-600">Currently converting:</div>
+                        <div class="font-medium text-gray-900">{{ currentFile }}</div>
+                    </div>
+
+                    <!-- File Count -->
+                    <div class="text-sm text-gray-600 mb-6">
+                        {{ completedFiles }} of {{ totalFiles }} files completed
+                    </div>
+
+                    <!-- Results List -->
+                    <div v-if="conversionResults.length > 0" class="space-y-2">
+                        <h4 class="font-medium text-gray-900">Completed Files:</h4>
+                        <div class="max-h-48 overflow-y-auto space-y-1">
+                            <div v-for="result in conversionResults" :key="result.source_file"
+                                 class="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
+                                <span class="text-gray-700">{{ getFileName(result.source_file) }}</span>
+                                <span v-if="result.status === 'success'" class="text-success">✓ Success</span>
+                                <span v-else class="text-error">✗ Failed</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Errors -->
+                    <div v-if="conversionErrors.length > 0" class="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <h4 class="font-medium text-red-900 mb-2">Errors:</h4>
+                        <div class="space-y-1">
+                            <div v-for="error in conversionErrors" :key="error.source_file"
+                                 class="text-sm text-red-700">
+                                {{ getFileName(error.source_file) }}: {{ error.error }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Completion Actions -->
+                    <div v-if="conversionComplete" class="mt-6 flex justify-end space-x-4">
+                        <button @click="startNewConversion" 
+                                class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-6 rounded-lg transition-colors">
+                            Convert More Files
+                        </button>
+                        <button v-if="conversionResults.length > 0"
+                                @click="downloadResults" 
+                                class="bg-success hover:bg-green-600 text-white font-medium py-2 px-6 rounded-lg transition-colors">
+                            View Results
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t border-gray-200 mt-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div class="text-center text-sm text-gray-500">
+                    GIACONVERT v1.0 - Professional Word to HTML Conversion
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Include Vue.js Application -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
