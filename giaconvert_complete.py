@@ -355,6 +355,9 @@ class WordToHTMLConverter:
             doc = Document(docx_path)
             self.image_counter = 0  # Reset counter for each document
             
+            # Ensure html_path is a Path object
+            html_path = Path(html_path)
+            
             # Create images directory if using external mode
             images_dir = None
             if self.image_mode == 'external':
