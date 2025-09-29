@@ -249,25 +249,24 @@ GIACONVERT/
 │       ├── css/app.css        # Custom styles  
 │       └── js/app.js          # Vue.js application logic
 ├── 🖥️ Command-Line Tools
+│   ├── giaconvert_universal.py    # Universal converter (.doc/.docx support)
 │   ├── giaconvert.py          # Basic converter (text + tables)
 │   ├── giaconvert_with_images.py  # Enhanced converter (+ images)
 │   ├── giaconvert_complete.py     # Complete converter (+ headers/footers)
-│   ├── giaconvert_universal.py    # Universal converter (.doc/.docx support)
 │   └── giaconvert             # CLI wrapper script
 ├── 📋 Setup & Configuration
 │   ├── setup.sh               # One-time setup script
-│   ├── requirements.txt       # Python dependencies
+│   ├── requirements.txt       # Basic Python dependencies
 │   └── requirements_with_images.txt  # Extended dependencies
 ├── 📖 Documentation
-│   ├── README.md              # This file
 │   ├── QUICK_START.md         # Quick reference guide
-│   ├── WEB_APP_COMPLETE.md    # Web app documentation
-│   └── ANSWERS.md             # FAQ and troubleshooting
-└── 🧪 Testing & Examples
-    ├── test_documents/        # Sample Word documents (.doc and .docx)
+│   ├── WEB_APP_COMPLETE.md    # Web application documentation
+│   ├── ANSWERS.md             # FAQ and troubleshooting
+│   └── [Additional guides]    # Feature-specific documentation
+└── 🧪 Tests
     ├── test_converters.py     # Converter validation
-    ├── create_test_document.py  # Test document generator
-    └── create_test_doc_file.py  # Legacy .doc test file generator
+    ├── create_test_*.py       # Test document generators
+    └── test_documents/        # Sample Word documents (.doc and .docx)
 ```
 
 ## Technical Architecture

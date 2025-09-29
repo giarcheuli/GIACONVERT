@@ -53,10 +53,12 @@ Thumbs.db
 ~$*.doc
 
 # Generated test files (keep source test documents, ignore outputs)
-test_documents/*_images/
-test_documents/*.html
+Tests/test_documents/*_images/
+Tests/test_documents/*.html
 
 # Log files
-*.log# Test outputs
+*.log
+
+# Test outputs
 test_output_*.html
 test_output_*_images/
