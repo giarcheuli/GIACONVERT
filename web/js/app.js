@@ -45,10 +45,14 @@ const GiaconvertApp = {
         },
         
         docxFiles() {
-            return this.selectedFiles.filter(file => 
-                file.name.toLowerCase().endsWith('.docx') && 
-                !file.name.startsWith('~$')
-            );
+            const filtered = this.selectedFiles.filter(file => {
+                const name = file.name.toLowerCase();
+                return (name.endsWith('.docx') || name.endsWith('.doc')) && 
+                       !file.name.startsWith('~$') &&
+                       !file.name.startsWith('.');
+            });
+            console.log('Computed docxFiles:', filtered.length, 'out of', this.selectedFiles.length, 'total files');
+            return filtered;
         },
         
         canStartConversion() {
@@ -148,20 +152,70 @@ const GiaconvertApp = {
         // File handling
         handleFileSelection(event) {
             const files = Array.from(event.target.files);
-            this.selectedFiles = [...this.selectedFiles, ...files];
+            console.log('Individual file selection - Total files found:', files.length);
+            console.log('Files:', files.map(f => ({ name: f.name, size: f.size })));
+            
+            // Filter for .doc/.docx files only and exclude temp files
+            const docFiles = files.filter(file => {
+                const name = file.name.toLowerCase();
+                return (name.endsWith('.docx') || name.endsWith('.doc')) && 
+                       !file.name.startsWith('~$') &&
+                       !file.name.startsWith('.');
+            });
+            
+            console.log('Filtered .doc/.docx files:', docFiles.length);
+            
+            // Add to existing files (don't replace)
+            this.selectedFiles = [...this.selectedFiles, ...docFiles];
             this.saveUserSettings();
+            
+            // Show user feedback
+            if (docFiles.length === 0) {
+                this.showError('Please select only .doc or .docx files.');
+            } else {
+                this.showSuccess(`Successfully added ${docFiles.length} Word documents`);
+                console.log(`Successfully added ${docFiles.length} Word documents`);
+            }
         },
         
         handleFolderSelection(event) {
             const files = Array.from(event.target.files);
-            this.selectedFiles = files;
+            console.log('Folder selection - Total files found:', files.length);
+            console.log('Files:', files.map(f => ({ name: f.name, size: f.size, path: f.webkitRelativePath })));
+            
+            // Filter for .doc/.docx files only and exclude temp files
+            const docFiles = files.filter(file => {
+                const name = file.name.toLowerCase();
+                return (name.endsWith('.docx') || name.endsWith('.doc')) && 
+                       !file.name.startsWith('~$') &&
+                       !file.name.startsWith('.');
+            });
+            
+            console.log('Filtered .doc/.docx files:', docFiles.length);
+            console.log('DOC files:', docFiles.map(f => ({ name: f.name, size: f.size, path: f.webkitRelativePath })));
+            
+            this.selectedFiles = docFiles;
             this.saveUserSettings();
+            
+            // Show user feedback
+            if (docFiles.length === 0) {
+                this.showError('No .doc or .docx files found in the selected folder.');
+            } else {
+                // Show success message briefly
+                this.showSuccess(`Successfully loaded ${docFiles.length} Word documents from folder`);
+                console.log(`Successfully loaded ${docFiles.length} Word documents from folder`);
+            }
         },
         
         clearFiles() {
             this.selectedFiles = [];
-            this.$refs.fileInput.value = '';
-            this.$refs.folderInput.value = '';
+            if (this.$refs.fileInput) {
+                this.$refs.fileInput.value = '';
+            }
+            if (this.$refs.folderInput) {
+                this.$refs.folderInput.value = '';
+            }
+            console.log('All files cleared');
         },
         
         // Conversion process
@@ -320,7 +374,12 @@ const GiaconvertApp = {
         
         showError(message) {
             // Simple error display - in a real app, you might use a toast library
-            alert(message);
+            alert('❌ ' + message);
+        },
+        
+        showSuccess(message) {
+            // Simple success display - in a real app, you might use a toast library
+            alert('✅ ' + message);
         },
         
         downloadResults() {
