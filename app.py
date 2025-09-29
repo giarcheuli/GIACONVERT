@@ -22,20 +22,18 @@ from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-# Import our existing converters
-from giaconvert import WordToHTMLConverter as BasicConverter
-from giaconvert_with_images import WordToHTMLConverter as ImageConverter  
-from giaconvert_complete import WordToHTMLConverter as CompleteConverter
+# Import our universal converter
+from giaconvert_universal import UniversalDocumentConverter
 
 # Global variables for tracking conversions
 active_conversions = {}
 conversion_results = {}
 
-# Conversion modes mapping
+# Conversion modes mapping (using the universal converter for all modes)
 CONVERTER_CLASSES = {
-    'basic': BasicConverter,
-    'enhanced': ImageConverter,
-    'complete': CompleteConverter
+    'basic': UniversalDocumentConverter,
+    'enhanced': UniversalDocumentConverter,
+    'complete': UniversalDocumentConverter
 }
 
 # Data models
@@ -306,22 +304,22 @@ async def process_conversion(conversion_id: str, request: ConversionRequest):
                     request.destination_path
                 )
                 
-                # Convert file
-                success = converter.convert_docx_to_html(file_path, output_path)
+                # Convert file using universal converter
+                result = converter.convert_document(file_path, output_path, request.mode)
                 
-                if success:
+                if result['success']:
                     status.results.append({
                         'source_file': file_path,
-                        'output_file': output_path,
-                        'status': 'success'
+                        'output_file': result['html_path'],
+                        'status': 'success',
+                        'images_extracted': result.get('images_extracted', 0),
+                        'images_dir': result.get('images_dir')
                     })
                     status.completed_files += 1
                 else:
-                    # Get error details from converter
-                    error_msg = converter.errors[-1] if converter.errors else "Unknown error"
                     status.errors.append({
                         'source_file': file_path,
-                        'error': error_msg,
+                        'error': result['message'],
                         'error_code': 'CONVERSION_FAILED'
                     })
                 
