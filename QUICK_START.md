@@ -1,4 +1,57 @@
-# GIACONVERT Project Structure
+# GIACONVERT Quick Start Guide
+
+## 🚀 Fastest Way to Get Started
+
+### Web Application (Recommended)
+1. **Double-click** `launch.py`
+2. **Browser opens automatically** 
+3. **Follow the wizard** to convert your documents
+
+### Command Line (Advanced Users)
+```bash
+# One-time setup
+./setup.sh
+
+# Convert documents
+python3 giaconvert_complete.py ~/Documents --images external --headers-footers include
+```
+
+## Project Structure
+
+```
+GIACONVERT/
+├── 🌐 WEB APPLICATION
+│   ├── launch.py                       # ← DOUBLE-CLICK THIS TO START!
+│   ├── app.py                          # FastAPI backend server
+│   └── web/                            # Frontend application
+│       ├── index.html                  # Main web interface
+│       ├── css/app.css                 # Custom styles
+│       └── js/app.js                   # Vue.js application
+├── 📖 DOCUMENTATION
+│   ├── README.md                       # Comprehensive documentation
+│   ├── QUICK_START.md                  # This quick reference guide
+│   ├── WEB_APP_COMPLETE.md            # Web application documentation
+│   ├── IMAGE_SUPPORT_PLAN.md          # Image support implementation details
+│   ├── HEADERS_FOOTERS_PLAN.md        # Headers/footers implementation details
+│   └── ANSWERS.md                      # FAQ and troubleshooting
+├── 🖥️ COMMAND LINE TOOLS
+│   ├── giaconvert.py                   # Basic CLI application (text-only)
+│   ├── giaconvert_with_images.py       # Enhanced CLI with image support
+│   ├── giaconvert_complete.py          # Complete CLI with all features
+│   └── giaconvert                      # Quick launcher script
+├── ⚙️ SETUP & CONFIGURATION
+│   ├── setup.sh                        # Automated setup script
+│   ├── requirements.txt                # Basic dependencies  
+│   └── requirements_with_images.txt    # Enhanced dependencies
+├── 🧪 TESTING & DEBUG
+│   ├── test_converters.py              # Converter validation
+│   ├── create_test_document.py         # Basic test document generator
+│   ├── create_test_document_with_images.py # Image test document generator
+│   ├── create_test_document_with_headers_footers.py # Headers/footers test generator
+│   ├── debug_images.py                 # Image debugging utility
+│   └── debug_headers_footers.py        # Headers/footers debugging utility
+└── 📁 test_documents/                  # Test files directory
+```
 
 ```
 GIACONVERT/
