@@ -3,7 +3,25 @@
 ## Your Questions Answered:
 
 ### 1. **What does "One-time setup" mean?**
-**Answer:** You only need to run the setup ONCE when you first install GIACONVERT. After that, you can use the tool as many times as you want without running setup again!
+**Answer:** ### Complete Version (Additional Features):
+6. 📑 **Extracts and converts headers and footers**
+7. 🖨️ **Generates professional print CSS** with proper page handling
+8. 📄 **Multiple display modes** for headers/footers (include, print-only, skip)
+9. 🏗️ **Creates semantic HTML** with proper document structure
+10. 📱 **Responsive design** that works perfectly on all devices and printers
+
+**Your original Word documents are never changed or deleted - they stay exactly as they were!**
+
+---
+
+**GIACONVERT is now a complete document conversion solution with enterprise-grade features!** 🚀
+
+### Quick Decision Guide:
+- **Need complete conversion?** → Use complete version with `--images external --headers-footers include`
+- **Print-focused documents?** → Use complete version with `--images inline --headers-footers print-only`
+- **Clean web display?** → Use complete version with `--images external --headers-footers skip`
+- **Text only?** → Use basic version with `./giaconvert`
+- **Fastest conversion?** → Use complete version with `--images skip --headers-footers skip`run the setup ONCE when you first install GIACONVERT. After that, you can use the tool as many times as you want without running setup again!
 
 ```bash
 # Basic setup (RUN THIS ONLY ONCE for text-only conversion):
@@ -18,21 +36,31 @@ python3 giaconvert_with_images.py ~/Documents --images external  # Enhanced vers
 ```
 
 ### 2. **What are the different versions available?**
-**Answer:** GIACONVERT now comes in two versions:
+**Answer:** GIACONVERT now comes in three versions:
 
 **Basic Version (`giaconvert.py` or `./giaconvert`):**
 - ✅ Text formatting (bold, italic, colors, fonts)
 - ✅ Tables with borders
 - ✅ Paragraph alignment
 - ❌ No image support
-- ⚡ Faster, minimal dependencies
+- ❌ No headers/footers support
+- ⚡ Fastest, minimal dependencies
 
 **Enhanced Version (`giaconvert_with_images.py`):**
 - ✅ Everything from basic version
 - ✅ Full image support (PNG, JPEG, GIF, BMP)
 - ✅ Multiple image handling modes
 - ✅ Image optimization and compression
+- ❌ No headers/footers support
 - 🔧 More features, requires Pillow library
+
+**Complete Version (`giaconvert_complete.py`) - Recommended:**
+- ✅ Everything from enhanced version
+- ✅ Headers and footers support
+- ✅ Professional print CSS
+- ✅ Semantic HTML structure
+- ✅ Multiple display modes for headers/footers
+- 🏆 Full-featured, enterprise-ready
 
 ### 3. **How do I handle images in my documents?**
 **Answer:** Use the enhanced version with image mode options:
@@ -48,7 +76,19 @@ python3 giaconvert_with_images.py ~/Documents --images inline
 python3 giaconvert_with_images.py ~/Documents --images skip
 ```
 
-### 4. **What is verbose output?**
+### 5. **What is verbose output?**
+**Answer:** Use the complete version with headers/footers mode options:
+
+```bash
+# Include headers/footers on screen and print (recommended)
+python3 giaconvert_complete.py ~/Documents --images external --headers-footers include
+
+# Headers/footers only when printing (clean web view)
+python3 giaconvert_complete.py ~/Documents --images external --headers-footers print-only
+
+# Skip headers/footers completely (fastest)
+python3 giaconvert_complete.py ~/Documents --images external --headers-footers skip
+```
 **Answer:** Verbose means "show more details". Here's the difference:
 
 **Normal output (without --verbose):**
@@ -68,7 +108,7 @@ python3 giaconvert_with_images.py ~/Documents --images skip
 ./giaconvert ~/Documents
 
 # Verbose output (more details)
-python3 giaconvert_with_images.py ~/Documents --images external --verbose
+python3 giaconvert_complete.py ~/Documents --images external --headers-footers include --verbose
 ```
 
 ## How to Use GIACONVERT:
@@ -84,24 +124,27 @@ cd /path/to/GIACONVERT
 ./giaconvert ~/Documents/MyWordDocs --verbose  # Show more details
 ```
 
-### Enhanced Version (With Image Support - Recommended):
+### Complete Version (All Features - Recommended):
 ```bash
 # First Time (Setup - DO THIS ONCE):
 cd /path/to/GIACONVERT
 pip3 install -r requirements_with_images.txt
 
 # Every Time After That:
-# External images (recommended for web):
-python3 giaconvert_with_images.py ~/Documents --images external --optimize-images
+# Complete conversion (recommended):
+python3 giaconvert_complete.py ~/Documents --images external --headers-footers include --optimize-images
 
-# Self-contained files:
-python3 giaconvert_with_images.py ~/Documents --images inline
+# Print-optimized documents:
+python3 giaconvert_complete.py ~/Documents --images inline --headers-footers print-only
 
-# Skip images (fastest):
-python3 giaconvert_with_images.py ~/Documents --images skip
+# Clean web display:
+python3 giaconvert_complete.py ~/Documents --images external --headers-footers skip
+
+# Fast conversion (no images/headers):
+python3 giaconvert_complete.py ~/Documents --images skip --headers-footers skip
 
 # Show detailed progress:
-python3 giaconvert_with_images.py ~/Documents --images external --verbose
+python3 giaconvert_complete.py ~/Documents --images external --headers-footers include --verbose
 ```
 
 ## What GIACONVERT Does:

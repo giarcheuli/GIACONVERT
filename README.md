@@ -1,6 +1,6 @@
-# GIACONVERT - Advanced Word to HTML Converter CLI App
+# GIACONVERT - Complete Word to HTML Converter CLI App
 
-A powerful command-line tool that recursively searches through directories and converts Word documents (.docx) to HTML format while preserving formatting, structure, and images.
+A powerful command-line tool that recursively searches through directories and converts Word documents (.docx) to HTML format while preserving formatting, structure, images, headers, and footers.
 
 ## Features
 
@@ -8,11 +8,13 @@ A powerful command-line tool that recursively searches through directories and c
 - 📄 **Format Preservation**: Maintains text formatting (bold, italic, underline, colors, fonts)
 - 📊 **Table Support**: Converts Word tables to HTML tables
 - 🖼️ **Image Support**: Extracts and converts embedded images with multiple handling options
+- 📑 **Headers & Footers**: Preserves document headers and footers with flexible display options
 - 🎨 **Style Preservation**: Preserves text alignment and advanced styling
 - 📝 **Progress Tracking**: Shows conversion progress and summary
 - ⚡ **Fast Processing**: Efficiently processes multiple documents
 - 🚫 **Smart Filtering**: Automatically skips temporary Word files (~$ files)
 - 🔧 **Image Optimization**: Optional image compression and resizing for web
+- 🖨️ **Print Optimization**: Professional print CSS with proper page handling
 
 ## Requirements
 
@@ -39,17 +41,18 @@ A powerful command-line tool that recursively searches through directories and c
    - Install required Python packages (only needs to be done once)
    - Make the CLI tool executable
 
-### Option 2: Full Installation (With Image Support - Recommended)
+### Option 3: Complete Installation (With Images & Headers/Footers - Recommended)
 
 1. **Clone or download this project to your Mac**
 
-2. **Install enhanced dependencies**:
+2. **Install complete dependencies**:
    ```bash
    pip3 install -r requirements_with_images.txt
    ```
 
 3. **Make scripts executable**:
    ```bash
+   chmod +x giaconvert_complete.py
    chmod +x giaconvert_with_images.py
    chmod +x giaconvert.py
    chmod +x giaconvert
@@ -62,19 +65,28 @@ A powerful command-line tool that recursively searches through directories and c
 ./giaconvert /path/to/your/directory
 ```
 
-### Enhanced Usage (With Image Support - Recommended)
+### Enhanced Usage (With Images)
 ```bash
 # External images (separate files) - Best for web publishing
 python3 giaconvert_with_images.py /path/to/your/directory --images external
 
 # Inline images (embedded in HTML) - Best for self-contained files  
 python3 giaconvert_with_images.py /path/to/your/directory --images inline
+```
 
-# Skip images (text-only) - Fastest conversion
-python3 giaconvert_with_images.py /path/to/your/directory --images skip
+### Complete Usage (With Images & Headers/Footers - Recommended)
+```bash
+# Complete conversion with all features (recommended)
+python3 giaconvert_complete.py /path/to/your/directory --images external --headers-footers include --optimize-images
 
-# With image optimization (recommended for web)
-python3 giaconvert_with_images.py /path/to/your/directory --images external --optimize-images
+# Print-optimized documents
+python3 giaconvert_complete.py /path/to/your/directory --images inline --headers-footers print-only
+
+# Screen-only display (no headers/footers)
+python3 giaconvert_complete.py /path/to/your/directory --images external --headers-footers skip
+
+# Fast text-only conversion
+python3 giaconvert_complete.py /path/to/your/directory --images skip --headers-footers skip
 ```
 
 ### Alternative Usage
@@ -89,30 +101,36 @@ Convert all Word documents in your Documents folder (basic):
 ./giaconvert ~/Documents
 ```
 
-Convert documents with image support (recommended):
+Convert documents with complete feature set (recommended):
 ```bash
-python3 giaconvert_with_images.py ~/Documents --images external --optimize-images
+python3 giaconvert_complete.py ~/Documents --images external --headers-footers include --optimize-images
 ```
 
-Convert documents in a specific project folder:
+Convert documents for professional printing:
 ```bash
-python3 giaconvert_with_images.py ~/Projects/MyProject --images external
+python3 giaconvert_complete.py ~/Projects/Reports --images inline --headers-footers print-only
 ```
 
 Create self-contained HTML files with embedded images:
 ```bash
-python3 giaconvert_with_images.py ~/Documents --images inline
+python3 giaconvert_complete.py ~/Documents --images inline --headers-footers include
+```
+
+Fast conversion without images or headers/footers:
+```bash
+python3 giaconvert_complete.py ~/Documents --images skip --headers-footers skip
 ```
 
 Show detailed output during conversion (**verbose** means "show more details"):
 ```bash
-python3 giaconvert_with_images.py ~/Documents --images external --verbose
+python3 giaconvert_complete.py ~/Documents --images external --headers-footers include --verbose
 ```
 
 **What is verbose output?** When you use `--verbose`, GIACONVERT shows you:
 - More detailed progress information
 - Exactly which files are being processed
 - Number of images processed per document
+- Headers and footers processing status
 - More detailed error messages if something goes wrong
 - Additional debugging information
 
@@ -151,10 +169,18 @@ To use the tool from anywhere on your Mac:
 - **Inline Images Mode**: Creates single HTML file with images embedded as base64
 - **Skip Images Mode**: Creates HTML file without images (same as text-only mode)
 
-#### External Images Output Structure:
+### With Complete Features (Images & Headers/Footers)
+- **Complete Conversion**: Creates HTML file with all document elements
+- **Headers/Footers Modes**:
+  - **Include**: Shows headers/footers on screen and print
+  - **Print-Only**: Headers/footers visible only when printing
+  - **Skip**: Ignores headers/footers for clean screen display
+- **Professional Layout**: Semantic HTML with proper print CSS
+
+#### Complete Features Output Structure:
 ```
-document.docx → document.html
-                document_images/
+document.docx → document.html (with headers/footers)
+                document_images/ (if external images)
                 ├── image_001.jpg
                 ├── image_002.png
                 └── image_003.jpg
@@ -176,16 +202,20 @@ document.docx → document.html
 - ✅ Tables with borders
 - ✅ Line breaks
 - ✅ **Images (PNG, JPEG, GIF, BMP)**
+- ✅ **Headers and Footers**
 - ✅ **Image optimization and resizing**
 - ✅ **Multiple image handling modes**
-- ⚠️ Headers/Footers (not supported yet)
+- ✅ **Professional print CSS**
 
-### Image Support Features
+### Advanced Features
 - ✅ **External Images**: Saves images as separate files with relative HTML paths
 - ✅ **Inline Images**: Embeds images as base64 directly in HTML
 - ✅ **Image Optimization**: Converts to JPEG and compresses for web use
 - ✅ **Format Detection**: Automatically detects and preserves image formats
 - ✅ **Responsive Styling**: Images scale properly on different screen sizes
+- ✅ **Headers/Footers Support**: Three display modes (include, print-only, skip)
+- ✅ **Semantic HTML**: Professional structure with proper elements
+- ✅ **Print Optimization**: CSS @page rules for proper printing
 
 ## Error Handling
 
@@ -248,6 +278,13 @@ The tool includes comprehensive error handling:
 - Full image support with multiple modes
 - Image optimization capabilities
 - Advanced error handling
+
+### Complete Version (`giaconvert_complete.py`) - **Recommended**
+- Everything from enhanced version
+- Headers and footers support
+- Professional print CSS
+- Semantic HTML structure
+- Multiple headers/footers display modes
 
 ## License
 
