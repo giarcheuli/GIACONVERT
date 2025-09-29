@@ -1,83 +1,131 @@
-# 🎉 GIACONVERT is Ready with Enhanced Capabilities!
+# 🎉 GIACONVERT - Universal Word Document Converter
 
 ## Your Questions Answered:
 
-### 1. **What does "One-time setup" mean?**
-**Answer:** ### Complete Version (Additional Features):
-6. 📑 **Extracts and converts headers and footers**
-7. 🖨️ **Generates professional print CSS** with proper page handling
-8. 📄 **Multiple display modes** for headers/footers (include, print-only, skip)
-9. 🏗️ **Creates semantic HTML** with proper document structure
-10. 📱 **Responsive design** that works perfectly on all devices and printers
+### 1. **What file formats does GIACONVERT support?**
+**Answer:** GIACONVERT now has **universal support** for both:
+- ✅ **Modern Word Documents** (.docx) - Office 2007 and later
+- ✅ **Legacy Word Documents** (.doc) - Office 97-2003 and earlier
 
-**Your original Word documents are never changed or deleted - they stay exactly as they were!**
+**This means you can convert ANY Word document, regardless of age or version!**
 
----
-
-**GIACONVERT is now a complete document conversion solution with enterprise-grade features!** 🚀
-
-### Quick Decision Guide:
-- **Need complete conversion?** → Use complete version with `--images external --headers-footers include`
-- **Print-focused documents?** → Use complete version with `--images inline --headers-footers print-only`
-- **Clean web display?** → Use complete version with `--images external --headers-footers skip`
-- **Text only?** → Use basic version with `./giaconvert`
-- **Fastest conversion?** → Use complete version with `--images skip --headers-footers skip`run the setup ONCE when you first install GIACONVERT. After that, you can use the tool as many times as you want without running setup again!
+### 2. **What's the best way to use GIACONVERT?**
+**Answer:** We recommend the **Web Application** for most users:
 
 ```bash
-# Basic setup (RUN THIS ONLY ONCE for text-only conversion):
-./setup.sh
-
-# Enhanced setup (RUN THIS ONLY ONCE for image support):
-pip3 install -r requirements_with_images.txt
-
-# THEN USE THESE EVERY TIME YOU WANT TO CONVERT DOCUMENTS:
-./giaconvert ~/Documents/MyFolder                    # Basic version
-python3 giaconvert_with_images.py ~/Documents --images external  # Enhanced version
+# Double-click this file to start:
+python3 launch.py
+# OR simply double-click launch.py in Finder
 ```
 
-### 2. **What are the different versions available?**
-**Answer:** GIACONVERT now comes in three versions:
+**Web App Benefits:**
+- 🎨 **Modern Interface** - Easy-to-use dashboard
+- 📁 **Drag & Drop** - Select files or entire folders  
+- 📊 **Live Progress** - See conversion progress in real-time
+- 🔧 **Smart Settings** - Remembers your preferences
+- 🌐 **Works Everywhere** - Any modern browser
 
-**Basic Version (`giaconvert.py` or `./giaconvert`):**
+### 3. **What does "One-time setup" mean?**
+**Answer:** You run the setup ONCE when you first install GIACONVERT. After that, you can use the tool as many times as you want without running setup again!
+
+```bash
+# Universal setup (RUN THIS ONLY ONCE for .doc/.docx support):
+./setup.sh
+
+# THEN USE THESE EVERY TIME YOU WANT TO CONVERT DOCUMENTS:
+python3 launch.py                                    # Web application (recommended)
+python3 giaconvert_universal.py ~/Documents basic   # Universal CLI converter
+./giaconvert ~/Documents/MyFolder                    # Basic CLI version
+```
+
+### 4. **What are the different versions available?**
+**Answer:** GIACONVERT now comes in **four versions**:
+
+**🌐 Web Application (`launch.py`) - RECOMMENDED:**
+- ✅ Universal .doc/.docx support
+- ✅ Modern dashboard interface
+- ✅ All conversion features
+- ✅ Real-time progress tracking
+- ✅ Error handling with friendly messages
+- 🎯 **Best for most users**
+
+**🔧 Universal CLI (`giaconvert_universal.py`) - NEW:**
+- ✅ Both .doc and .docx file support
+- ✅ Automatic format detection
+- ✅ Three conversion modes (basic, enhanced, complete)
+- ✅ Command-line flexibility
+- 🎯 **Best for scripting and automation**
+
+**⚡ Basic Version (`giaconvert.py` or `./giaconvert`):**
 - ✅ Text formatting (bold, italic, colors, fonts)
 - ✅ Tables with borders
 - ✅ Paragraph alignment
+- ❌ Only .docx files
 - ❌ No image support
 - ❌ No headers/footers support
-- ⚡ Fastest, minimal dependencies
+- 🎯 **Best for simple, fast conversion**
 
-**Enhanced Version (`giaconvert_with_images.py`):**
+**🖼️ Enhanced Version (`giaconvert_with_images.py`):**
 - ✅ Everything from basic version
 - ✅ Full image support (PNG, JPEG, GIF, BMP)
 - ✅ Multiple image handling modes
 - ✅ Image optimization and compression
+- ❌ Only .docx files
 - ❌ No headers/footers support
-- 🔧 More features, requires Pillow library
+- 🎯 **Best for documents with images**
 
-**Complete Version (`giaconvert_complete.py`) - Recommended:**
+**📄 Complete Version (`giaconvert_complete.py`):**
 - ✅ Everything from enhanced version
 - ✅ Headers and footers support
 - ✅ Professional print CSS
 - ✅ Semantic HTML structure
 - ✅ Multiple display modes for headers/footers
-- 🏆 Full-featured, enterprise-ready
+- ❌ Only .docx files
+- � **Best for full-featured .docx conversion**
 
-### 3. **How do I handle images in my documents?**
-**Answer:** Use the enhanced version with image mode options:
+### 5. **Which version should I use?**
+**Quick Decision Guide:**
+
+- **🌐 Most Users** → **Web Application** (`python3 launch.py`)
+- **🔧 Automation/Scripting** → **Universal CLI** (`giaconvert_universal.py`)
+- **⚡ Legacy Documents** → **Universal CLI** (handles both .doc and .docx)
+- **📱 Quick & Simple** → **Basic CLI** (`./giaconvert`)
+
+### 6. **How do I handle different file formats?**
+**Answer:** The Universal Converter automatically detects and handles both formats:
 
 ```bash
-# External images (best for web publishing)
-python3 giaconvert_with_images.py ~/Documents --images external --optimize-images
+# Works with both .doc and .docx files automatically
+python3 giaconvert_universal.py ~/Documents/MixedFiles enhanced
 
-# Self-contained HTML files (best for sharing)
-python3 giaconvert_with_images.py ~/Documents --images inline
-
-# Skip images (fastest conversion)
-python3 giaconvert_with_images.py ~/Documents --images skip
+# Web app handles both formats seamlessly
+python3 launch.py
 ```
 
-### 5. **What is verbose output?**
-**Answer:** Use the complete version with headers/footers mode options:
+**Format Support:**
+- ✅ **Modern Files** (.docx) - Full feature support
+- ✅ **Legacy Files** (.doc) - Text, tables, basic images
+- 🔄 **Automatic Detection** - No need to specify format
+
+### 7. **What are the conversion modes?**
+**Answer:** Three modes available in both Web App and Universal CLI:
+
+**🚀 Basic Mode:**
+- Text formatting and tables
+- Fastest conversion
+- Smallest output files
+
+**🖼️ Enhanced Mode:**
+- Basic features + images
+- Image optimization
+- Web-ready output
+
+**📄 Complete Mode:**
+- All features + headers/footers
+- Professional print CSS
+- Full document preservation
+
+### 8. **What is verbose output?**
 
 ```bash
 # Include headers/footers on screen and print (recommended)

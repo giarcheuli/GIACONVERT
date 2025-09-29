@@ -8,6 +8,7 @@ The GIACONVERT web application Phase 1 MVP is now complete and fully functional!
 
 #### **Core Features**
 - **Modern Web Interface**: Professional Vue.js 3 + Tailwind CSS interface
+- **Universal File Support**: Both .doc (legacy) and .docx (modern) Word documents
 - **File Selection**: Support for individual files and entire directories
 - **Three Conversion Modes**: Basic, Enhanced (with images), Complete (with headers/footers)
 - **Flexible Output Options**: Save beside originals, mirror directory structure, or single folder
@@ -40,7 +41,7 @@ The GIACONVERT web application Phase 1 MVP is now complete and fully functional!
 #### **Detailed Workflow**
 1. **Welcome Screen**: Introduction and quick start guide
 2. **File Selection**: 
-   - Choose individual .docx files OR
+   - Choose individual .doc/.docx files OR
    - Select entire directories (with subdirectories)
 3. **Conversion Settings**:
    - **Mode**: Basic (fast) | Enhanced (with images) | Complete (full features)
@@ -61,6 +62,7 @@ GIACONVERT/
 │   │   └── app.css            # Custom styles
 │   └── js/
 │       └── app.js             # Vue.js application
+├── giaconvert_universal.py     # Universal converter (.doc/.docx)
 ├── giaconvert.py              # Basic converter
 ├── giaconvert_with_images.py  # Enhanced converter
 ├── giaconvert_complete.py     # Complete converter
@@ -73,7 +75,7 @@ GIACONVERT/
 - `GET /` - Main application interface
 - `GET /api/health` - Server health check
 - `GET /api/modes` - Available conversion modes
-- `POST /api/upload` - Upload Word documents
+- `POST /api/upload` - Upload Word documents (.doc/.docx)
 - `POST /api/convert` - Start conversion process
 - `GET /api/status/{id}` - Check conversion progress
 

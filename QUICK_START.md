@@ -5,15 +5,15 @@
 ### Web Application (Recommended)
 1. **Double-click** `launch.py`
 2. **Browser opens automatically** 
-3. **Follow the wizard** to convert your documents
+3. **Follow the wizard** to convert your Word documents (.doc and .docx)
 
 ### Command Line (Advanced Users)
 ```bash
 # One-time setup
 ./setup.sh
 
-# Convert documents
-python3 giaconvert_complete.py ~/Documents --images external --headers-footers include
+# Convert documents (universal support for .doc and .docx)
+python3 giaconvert_universal.py ~/Documents enhanced
 ```
 
 ## Project Structure
@@ -38,6 +38,7 @@ GIACONVERT/
 │   ├── giaconvert.py                   # Basic CLI application (text-only)
 │   ├── giaconvert_with_images.py       # Enhanced CLI with image support
 │   ├── giaconvert_complete.py          # Complete CLI with all features
+│   ├── giaconvert_universal.py         # Universal CLI (.doc/.docx support)
 │   └── giaconvert                      # Quick launcher script
 ├── ⚙️ SETUP & CONFIGURATION
 │   ├── setup.sh                        # Automated setup script
@@ -46,11 +47,12 @@ GIACONVERT/
 ├── 🧪 TESTING & DEBUG
 │   ├── test_converters.py              # Converter validation
 │   ├── create_test_document.py         # Basic test document generator
+│   ├── create_test_doc_file.py         # Legacy .doc test file generator
 │   ├── create_test_document_with_images.py # Image test document generator
 │   ├── create_test_document_with_headers_footers.py # Headers/footers test generator
 │   ├── debug_images.py                 # Image debugging utility
 │   └── debug_headers_footers.py        # Headers/footers debugging utility
-└── 📁 test_documents/                  # Test files directory
+└── 📁 test_documents/                  # Test files directory (.doc and .docx)
 ```
 
 ```
@@ -98,6 +100,17 @@ GIACONVERT/
    ./giaconvert /path/to/your/documents --verbose
    ```
 
+### Universal Converter (Recommended for CLI)
+```bash
+# Universal converter supports both .doc and .docx files
+python3 giaconvert_universal.py /path/to/your/documents enhanced
+
+# Conversion modes:
+python3 giaconvert_universal.py /path/to/your/documents basic      # Fast text-only
+python3 giaconvert_universal.py /path/to/your/documents enhanced   # With images  
+python3 giaconvert_universal.py /path/to/your/documents complete   # Full features
+```
+
 ### Option 3: Complete Setup (All Features - Recommended)
 1. **Install complete dependencies** (ONE-TIME ONLY):
    ```bash
@@ -122,7 +135,7 @@ GIACONVERT/
 ## What GIACONVERT does
 
 ### Basic Version
-- ✅ Recursively searches directories for .docx files
+- ✅ Recursively searches directories for .doc and .docx files
 - ✅ Converts Word formatting to HTML/CSS
 - ✅ Preserves text styles (bold, italic, underline, colors)
 - ✅ Maintains paragraph alignment
@@ -130,6 +143,7 @@ GIACONVERT/
 - ✅ Creates HTML files in the same location as Word docs
 - ✅ Shows progress and conversion summary
 - ✅ Handles errors gracefully
+- ✅ **Universal format support** for both legacy and modern Word documents
 
 ### Complete Version (with Images & Headers/Footers)
 - ✅ Everything from enhanced version PLUS:
@@ -203,7 +217,7 @@ A: For basic conversion: `./giaconvert /path/to/your/folder`. For enhanced conve
 A: When you add `--verbose`, GIACONVERT shows you more details about what it's doing (like which files it's processing, how many images were found, and more detailed error messages). Without `--verbose`, you only see the basic information.
 
 **Q: Which version should I use?**  
-A: Use the **complete version** (`giaconvert_complete.py`) for full features including images and headers/footers. Use the enhanced version (`giaconvert_with_images.py`) if you only need images. Use the basic version (`giaconvert.py`) for simple text-only conversion.
+A: Use the **universal converter** (`giaconvert_universal.py`) for seamless .doc/.docx support. Use the **complete version** (`giaconvert_complete.py`) for maximum .docx features. Use the **web application** (`launch.py`) for the best user experience.
 
 **Q: Which image and headers/footers modes should I use?**  
 A: For most cases: `--images external --headers-footers include --optimize-images`. For print documents: `--images inline --headers-footers print-only`. For fastest conversion: `--images skip --headers-footers skip`.

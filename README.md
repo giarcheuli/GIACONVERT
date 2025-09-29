@@ -1,6 +1,6 @@
-# GIACONVERT - Complete Word to HTML Converter
+# GIACONVERT - Universal Word to HTML Converter
 
-A powerful tool that converts Word documents (.docx) to HTML format while preserving formatting, structure, images, headers, and footers. Available as both a modern web application and command-line interface.
+A powerful tool that converts Word documents (.doc and .docx) to HTML format while preserving formatting, structure, images, headers, and footers. Available as both a modern web application and command-line interface.
 
 ## 🌟 NEW: Web Application Interface
 
@@ -25,7 +25,8 @@ A powerful tool that converts Word documents (.docx) to HTML format while preser
 ## Features
 
 - 🔍 **Recursive Directory Search**: Automatically finds all Word documents in specified directory and subdirectories
-- 📄 **Format Preservation**: Maintains text formatting (bold, italic, underline, colors, fonts)
+- 📄 **Universal Format Support**: Supports both modern (.docx) and legacy (.doc) Word documents
+- 📊 **Format Preservation**: Maintains text formatting (bold, italic, underline, colors, fonts)
 - 📊 **Table Support**: Converts Word tables to HTML tables
 - 🖼️ **Image Support**: Extracts and converts embedded images with multiple handling options
 - 📑 **Headers & Footers**: Preserves document headers and footers with flexible display options
@@ -251,6 +252,7 @@ GIACONVERT/
 │   ├── giaconvert.py          # Basic converter (text + tables)
 │   ├── giaconvert_with_images.py  # Enhanced converter (+ images)
 │   ├── giaconvert_complete.py     # Complete converter (+ headers/footers)
+│   ├── giaconvert_universal.py    # Universal converter (.doc/.docx support)
 │   └── giaconvert             # CLI wrapper script
 ├── 📋 Setup & Configuration
 │   ├── setup.sh               # One-time setup script
@@ -262,9 +264,10 @@ GIACONVERT/
 │   ├── WEB_APP_COMPLETE.md    # Web app documentation
 │   └── ANSWERS.md             # FAQ and troubleshooting
 └── 🧪 Testing & Examples
-    ├── test_documents/        # Sample Word documents
+    ├── test_documents/        # Sample Word documents (.doc and .docx)
     ├── test_converters.py     # Converter validation
-    └── create_test_document.py  # Test document generator
+    ├── create_test_document.py  # Test document generator
+    └── create_test_doc_file.py  # Legacy .doc test file generator
 ```
 
 ## Technical Architecture
@@ -277,7 +280,8 @@ GIACONVERT/
 - **Error Handling**: Comprehensive error taxonomy with user-friendly messages
 
 ### Conversion Engine
-- **Core**: python-docx for Word document parsing
+- **Core**: python-docx for modern .docx parsing, docx2txt for legacy .doc files
+- **Universal Support**: Automatic format detection and appropriate conversion
 - **Images**: Pillow for image processing and optimization
 - **Output**: Clean, semantic HTML with professional CSS
 - **Modes**: Three conversion levels (Basic/Enhanced/Complete)
@@ -337,7 +341,7 @@ The tool includes comprehensive error handling:
    # For basic version
    pip3 install -r requirements.txt
    
-   # For version with image support
+   # For version with image support and .doc files
    pip3 install -r requirements_with_images.txt
    ```
 
@@ -348,19 +352,21 @@ The tool includes comprehensive error handling:
 ### Supported File Types
 
 - ✅ `.docx` (Word 2007 and later)
-- ❌ `.doc` (older Word format - not supported)
+- ✅ `.doc` (Legacy Word format - Office 97-2003)
 - ❌ `.rtf` (Rich Text Format - not supported)
 
 ## Technical Details
 
 - Built with Python 3
-- Uses `python-docx` for Word document parsing
+- Uses `python-docx` for modern .docx document parsing
+- Uses `docx2txt` for legacy .doc document processing
 - Uses `click` for command-line interface
 - Uses `Pillow` for image processing and optimization
 - Uses `lxml` for XML processing
 - Generates clean, semantic HTML with inline CSS
 - Preserves document structure, formatting, and images
 - Supports multiple image handling strategies for different use cases
+- Universal format detection for seamless .doc/.docx processing
 
 ## Version Information
 
