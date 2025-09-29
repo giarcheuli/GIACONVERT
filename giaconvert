@@ -1,13 +1,14 @@
 #!/bin/bash
 
-# GIACONVERT - Word to HTML converter
+# GIACONVERT - Basic Word to HTML converter wrapper script
 # Usage: ./giaconvert /path/to/directory
+# Note: This is the basic version. For image support, use giaconvert_with_images.py
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
 if [ $# -eq 0 ]; then
-    echo "GIACONVERT - Word to HTML Converter"
-    echo "==================================="
+    echo "GIACONVERT - Word to HTML Converter (Basic Version)"
+    echo "=================================================="
     echo ""
     echo "Usage: $0 <directory> [--verbose]"
     echo ""
@@ -17,6 +18,10 @@ if [ $# -eq 0 ]; then
     echo ""
     echo "This tool will find all Word documents (.docx) in the specified"
     echo "directory and its subdirectories, then convert them to HTML format."
+    echo ""
+    echo "Note: This is the basic version that handles text and tables."
+    echo "For enhanced features including image support, use:"
+    echo "  python3 giaconvert_with_images.py <directory> --images external"
     exit 1
 fi
 

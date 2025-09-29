@@ -1,9 +1,10 @@
 #!/bin/bash
 
-# GIACONVERT Setup Script
-# This script sets up the CLI app for converting Word documents to HTML
+# GIACONVERT Basic Setup Script
+# This script sets up the basic CLI app for converting Word documents to HTML
+# For enhanced features including image support, use: pip3 install -r requirements_with_images.txt
 
-echo "🔧 Setting up GIACONVERT..."
+echo "🔧 Setting up GIACONVERT (Basic Version)..."
 
 # Check if Python 3 is installed
 if ! command -v python3 &> /dev/null; then
@@ -34,12 +35,16 @@ fi
 chmod +x giaconvert.py
 
 echo ""
-echo "🎉 GIACONVERT setup completed successfully!"
+echo "🎉 GIACONVERT basic setup completed successfully!"
 echo ""
-echo "Usage:"
+echo "Basic Usage (Text and Tables):"
 echo "  python3 giaconvert.py /path/to/directory"
 echo "  or"
 echo "  ./giaconvert /path/to/directory"
+echo ""
+echo "Enhanced Usage (With Image Support):"
+echo "  1. Install enhanced dependencies: pip3 install -r requirements_with_images.txt"
+echo "  2. Use enhanced version: python3 giaconvert_with_images.py /path/to/directory --images external"
 echo ""
 echo "Example:"
 echo "  ./giaconvert ~/Documents/MyWordDocs"

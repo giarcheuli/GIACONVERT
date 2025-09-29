@@ -1,16 +1,18 @@
-# GIACONVERT - Word to HTML Converter CLI App
+# GIACONVERT - Advanced Word to HTML Converter CLI App
 
-A command-line tool that recursively searches through directories and converts Word documents (.docx) to HTML format while preserving formatting and structure.
+A powerful command-line tool that recursively searches through directories and converts Word documents (.docx) to HTML format while preserving formatting, structure, and images.
 
 ## Features
 
 - 🔍 **Recursive Directory Search**: Automatically finds all Word documents in specified directory and subdirectories
 - 📄 **Format Preservation**: Maintains text formatting (bold, italic, underline, colors, fonts)
 - 📊 **Table Support**: Converts Word tables to HTML tables
-- 🎨 **Style Preservation**: Preserves text alignment and basic styling
+- 🖼️ **Image Support**: Extracts and converts embedded images with multiple handling options
+- 🎨 **Style Preservation**: Preserves text alignment and advanced styling
 - 📝 **Progress Tracking**: Shows conversion progress and summary
 - ⚡ **Fast Processing**: Efficiently processes multiple documents
 - 🚫 **Smart Filtering**: Automatically skips temporary Word files (~$ files)
+- 🔧 **Image Optimization**: Optional image compression and resizing for web
 
 ## Requirements
 
@@ -21,6 +23,8 @@ A command-line tool that recursively searches through directories and converts W
 ## Installation (One-time Setup)
 
 **"One-time setup" means you only need to run this ONCE.** After the initial setup, you can use GIACONVERT anytime without running setup again!
+
+### Option 1: Basic Installation (Text-only conversion)
 
 1. **Clone or download this project to your Mac**
 
@@ -35,11 +39,42 @@ A command-line tool that recursively searches through directories and converts W
    - Install required Python packages (only needs to be done once)
    - Make the CLI tool executable
 
+### Option 2: Full Installation (With Image Support - Recommended)
+
+1. **Clone or download this project to your Mac**
+
+2. **Install enhanced dependencies**:
+   ```bash
+   pip3 install -r requirements_with_images.txt
+   ```
+
+3. **Make scripts executable**:
+   ```bash
+   chmod +x giaconvert_with_images.py
+   chmod +x giaconvert.py
+   chmod +x giaconvert
+   ```
+
 ## Usage
 
-### Simple Usage (Recommended)
+### Simple Usage (Text-only conversion)
 ```bash
 ./giaconvert /path/to/your/directory
+```
+
+### Enhanced Usage (With Image Support - Recommended)
+```bash
+# External images (separate files) - Best for web publishing
+python3 giaconvert_with_images.py /path/to/your/directory --images external
+
+# Inline images (embedded in HTML) - Best for self-contained files  
+python3 giaconvert_with_images.py /path/to/your/directory --images inline
+
+# Skip images (text-only) - Fastest conversion
+python3 giaconvert_with_images.py /path/to/your/directory --images skip
+
+# With image optimization (recommended for web)
+python3 giaconvert_with_images.py /path/to/your/directory --images external --optimize-images
 ```
 
 ### Alternative Usage
@@ -49,24 +84,35 @@ python3 giaconvert.py /path/to/your/directory
 
 ### Examples
 
-Convert all Word documents in your Documents folder:
+Convert all Word documents in your Documents folder (basic):
 ```bash
 ./giaconvert ~/Documents
 ```
 
+Convert documents with image support (recommended):
+```bash
+python3 giaconvert_with_images.py ~/Documents --images external --optimize-images
+```
+
 Convert documents in a specific project folder:
 ```bash
-./giaconvert ~/Projects/MyProject
+python3 giaconvert_with_images.py ~/Projects/MyProject --images external
+```
+
+Create self-contained HTML files with embedded images:
+```bash
+python3 giaconvert_with_images.py ~/Documents --images inline
 ```
 
 Show detailed output during conversion (**verbose** means "show more details"):
 ```bash
-./giaconvert ~/Documents --verbose
+python3 giaconvert_with_images.py ~/Documents --images external --verbose
 ```
 
 **What is verbose output?** When you use `--verbose`, GIACONVERT shows you:
 - More detailed progress information
 - Exactly which files are being processed
+- Number of images processed per document
 - More detailed error messages if something goes wrong
 - Additional debugging information
 
@@ -94,10 +140,25 @@ To use the tool from anywhere on your Mac:
 
 ## Output
 
+### Text-only Mode
 - HTML files are created in the same location as the original Word documents
 - Original Word files are preserved (not modified or deleted)
 - File names are preserved with .html extension
 - Example: `document.docx` → `document.html`
+
+### With Image Support
+- **External Images Mode**: Creates HTML file + `document_images/` folder containing image files
+- **Inline Images Mode**: Creates single HTML file with images embedded as base64
+- **Skip Images Mode**: Creates HTML file without images (same as text-only mode)
+
+#### External Images Output Structure:
+```
+document.docx → document.html
+                document_images/
+                ├── image_001.jpg
+                ├── image_002.png
+                └── image_003.jpg
+```
 
 ## Supported Features
 
@@ -114,8 +175,17 @@ To use the tool from anywhere on your Mac:
 - ✅ Paragraphs
 - ✅ Tables with borders
 - ✅ Line breaks
-- ⚠️ Images (not supported yet)
+- ✅ **Images (PNG, JPEG, GIF, BMP)**
+- ✅ **Image optimization and resizing**
+- ✅ **Multiple image handling modes**
 - ⚠️ Headers/Footers (not supported yet)
+
+### Image Support Features
+- ✅ **External Images**: Saves images as separate files with relative HTML paths
+- ✅ **Inline Images**: Embeds images as base64 directly in HTML
+- ✅ **Image Optimization**: Converts to JPEG and compresses for web use
+- ✅ **Format Detection**: Automatically detects and preserves image formats
+- ✅ **Responsive Styling**: Images scale properly on different screen sizes
 
 ## Error Handling
 
@@ -138,7 +208,11 @@ The tool includes comprehensive error handling:
 
 2. **Module Not Found Error**:
    ```bash
+   # For basic version
    pip3 install -r requirements.txt
+   
+   # For version with image support
+   pip3 install -r requirements_with_images.txt
    ```
 
 3. **Python Not Found**:
@@ -156,8 +230,24 @@ The tool includes comprehensive error handling:
 - Built with Python 3
 - Uses `python-docx` for Word document parsing
 - Uses `click` for command-line interface
+- Uses `Pillow` for image processing and optimization
+- Uses `lxml` for XML processing
 - Generates clean, semantic HTML with inline CSS
-- Preserves document structure and formatting
+- Preserves document structure, formatting, and images
+- Supports multiple image handling strategies for different use cases
+
+## Version Information
+
+### Basic Version (`giaconvert.py`)
+- Text and table conversion
+- Fast processing
+- Minimal dependencies
+
+### Enhanced Version (`giaconvert_with_images.py`)
+- Everything from basic version
+- Full image support with multiple modes
+- Image optimization capabilities
+- Advanced error handling
 
 ## License
 

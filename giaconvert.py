@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
-GIACONVERT - Word to HTML Converter CLI App
+GIACONVERT - Basic Word to HTML Converter CLI App
 Converts .docx files to HTML format while preserving formatting and structure.
+
+Note: This is the basic version that handles text and tables. 
+For image support, use giaconvert_with_images.py instead.
 """
 
 import os
