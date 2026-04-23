@@ -383,8 +383,19 @@ const GiaconvertApp = {
         },
         
         downloadResults() {
-            // Placeholder for download functionality
-            alert('Download functionality will be implemented in the next iteration');
+            const successful = this.conversionResults.filter(r => r.status === 'success' && r.file_id);
+            if (successful.length === 0) {
+                this.showError('No successfully converted files available for download.');
+                return;
+            }
+            successful.forEach(result => {
+                const link = document.createElement('a');
+                link.href = `${this.apiBaseUrl}/download/${result.file_id}`;
+                link.download = this.getFileName(result.output_file);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
         },
         
         // User settings persistence

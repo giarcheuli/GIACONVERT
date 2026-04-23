@@ -6,6 +6,7 @@ FastAPI server that provides REST API endpoints for Word to HTML conversion.
 
 import os
 import sys
+import re
 import json
 import uuid
 import asyncio
@@ -28,6 +29,9 @@ from giaconvert_universal import UniversalDocumentConverter
 # Global variables for tracking conversions
 active_conversions = {}
 conversion_results = {}
+
+# Registry mapping download file_id -> absolute path on disk
+download_registry = {}
 
 # Conversion modes mapping (using the universal converter for all modes)
 CONVERTER_CLASSES = {
@@ -175,10 +179,10 @@ async def upload_files(files: List[UploadFile] = File(...)):
     upload_responses = []
     
     for file in files:
-        if not file.filename.lower().endswith('.docx'):
+        if not (file.filename.lower().endswith('.docx') or file.filename.lower().endswith('.doc')):
             raise HTTPException(
                 status_code=400,
-                detail=f"File {file.filename} is not a Word document (.docx)"
+                detail=f"File {file.filename} is not a Word document (.doc or .docx)"
             )
         
         # Generate upload ID and save file
@@ -269,13 +273,33 @@ async def get_conversion_status(conversion_id: str):
 
 @app.get("/api/download/{file_id}")
 async def download_file(file_id: str):
-    """Download converted HTML file"""
-    
-    # In a real implementation, you'd map file_id to actual file paths
-    # For now, this is a placeholder
-    raise HTTPException(
-        status_code=501,
-        detail="Download functionality not yet implemented"
+    """Download a converted HTML file by its registered file_id"""
+
+    if file_id not in download_registry:
+        raise HTTPException(
+            status_code=404,
+            detail="File not found. It may have expired or the conversion ID is invalid."
+        )
+
+    file_path = Path(download_registry[file_id])
+
+    if not file_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="Converted file no longer exists on disk."
+        )
+
+    return FileResponse(
+        path=str(file_path),
+        media_type="text/html",
+        filename=file_path.name,
+        headers={
+            "Content-Disposition": (
+                "attachment; filename=\""
+                + re.sub(r'[^\w\-. ]', '_', file_path.name)
+                + "\""
+            )
+        }
     )
 
 # Background conversion processing
@@ -308,9 +332,12 @@ async def process_conversion(conversion_id: str, request: ConversionRequest):
                 result = converter.convert_document(file_path, output_path, request.mode)
                 
                 if result['success']:
+                    file_id = str(uuid.uuid4())
+                    download_registry[file_id] = result['html_path']
                     status.results.append({
                         'source_file': file_path,
                         'output_file': result['html_path'],
+                        'file_id': file_id,
                         'status': 'success',
                         'images_extracted': result.get('images_extracted', 0),
                         'images_dir': result.get('images_dir')
