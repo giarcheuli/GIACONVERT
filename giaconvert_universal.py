@@ -18,6 +18,7 @@ from docx import Document
 from docx.shared import Inches
 from docx.oxml.ns import qn
 from docx.oxml import parse_xml
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 
 # For .doc files
 import docx2txt
@@ -149,11 +150,12 @@ class UniversalDocumentConverter:
             # Reset counters
             self.image_counter = 0
             self.extracted_images = []
-            
-            # Extract images if requested
+
+            # Prepare images directory for external mode (images are extracted inline during conversion)
             images_dir = None
             if extract_images:
-                images_dir = self._extract_docx_images(docx_path, html_path)
+                images_dir = html_path.parent / f"{html_path.stem}_images"
+                images_dir.mkdir(exist_ok=True)
             
             # Convert document content
             html_content = self._convert_docx_content_to_html(
@@ -168,7 +170,7 @@ class UniversalDocumentConverter:
                 'success': True,
                 'html_path': str(html_path),
                 'images_extracted': len(self.extracted_images),
-                'images_dir': str(images_dir) if images_dir else None,
+                'images_dir': str(images_dir) if images_dir and self.extracted_images else None,
                 'message': f'Successfully converted .docx file to HTML'
             }
             
@@ -307,157 +309,275 @@ class UniversalDocumentConverter:
         
         return html_content
     
-    def _extract_docx_images(self, docx_path: Path, html_path: Path) -> Optional[Path]:
-        """Extract images from .docx file"""
+    def _get_image_extension(self, image_data: bytes) -> str:
+        """Determine image file extension from binary magic bytes"""
+        if image_data.startswith(b'\x89PNG'):
+            return 'png'
+        elif image_data.startswith(b'\xff\xd8\xff'):
+            return 'jpg'
+        elif image_data.startswith(b'GIF'):
+            return 'gif'
+        elif image_data.startswith(b'BM'):
+            return 'bmp'
+        return 'png'
+
+    def _get_run_style(self, run) -> str:
+        """Extract inline CSS styling from a docx run"""
+        styles = []
+
+        if run.bold:
+            styles.append('font-weight:bold')
+        if run.italic:
+            styles.append('font-style:italic')
+        if run.underline:
+            styles.append('text-decoration:underline')
+
         try:
-            images_dir = html_path.parent / f"{html_path.stem}_images"
-            images_dir.mkdir(exist_ok=True)
-            
-            # Extract images from the docx file
-            with zipfile.ZipFile(docx_path, 'r') as docx_zip:
-                for file_info in docx_zip.filelist:
-                    if file_info.filename.startswith('word/media/'):
-                        # Extract image
-                        image_data = docx_zip.read(file_info.filename)
-                        
-                        # Get file extension
-                        original_name = os.path.basename(file_info.filename)
-                        file_ext = os.path.splitext(original_name)[1]
-                        
-                        # Create new filename
+            if run.font.color and run.font.color.rgb:
+                rgb = run.font.color.rgb
+                if hasattr(rgb, 'red'):
+                    r, g, b = rgb.red, rgb.green, rgb.blue
+                else:
+                    r, g, b = rgb[0], rgb[1], rgb[2]
+                styles.append(f'color:rgb({r},{g},{b})')
+        except (AttributeError, IndexError, TypeError):
+            pass
+
+        try:
+            if run.font.size:
+                size_px = int(run.font.size.pt * 1.33)
+                styles.append(f'font-size:{size_px}px')
+        except (AttributeError, TypeError):
+            pass
+
+        if run.font.name:
+            styles.append(f"font-family:'{run.font.name}',sans-serif")
+
+        return ';'.join(styles)
+
+    def _extract_paragraph_images(self, doc, paragraph, images_dir: Optional[Path]) -> str:
+        """
+        Walk paragraph runs and extract any inline images (w:drawing elements).
+        Returns HTML <img> tags for all found images, placed at their document position.
+        """
+        html_parts = []
+        namespaces = {
+            'a': 'http://schemas.openxmlformats.org/drawingml/2006/main',
+            'r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+        }
+
+        for run in paragraph.runs:
+            for drawing in run._element.xpath('.//w:drawing'):
+                try:
+                    blips = drawing.xpath('.//a:blip[@r:embed]', namespaces=namespaces)
+                    for blip in blips:
+                        rel_id = blip.get(
+                            '{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed'
+                        )
+                        if not rel_id:
+                            continue
+                        try:
+                            image_data = doc.part.rels[rel_id].target_part.blob
+                        except (KeyError, AttributeError):
+                            continue
+
                         self.image_counter += 1
-                        new_filename = f"image_{self.image_counter}{file_ext}"
-                        image_path = images_dir / new_filename
-                        
-                        # Save image
-                        with open(image_path, 'wb') as img_file:
-                            img_file.write(image_data)
-                        
-                        self.extracted_images.append({
-                            'original_name': original_name,
-                            'new_name': new_filename,
-                            'path': str(image_path)
-                        })
-            
-            return images_dir if self.extracted_images else None
-            
-        except Exception as e:
-            print(f"Warning: Could not extract images: {e}")
-            return None
-    
-    def _convert_docx_content_to_html(self, doc, title: str, images_dir: Optional[Path], 
-                                     include_headers_footers: bool) -> str:
-        """Convert .docx document content to HTML"""
-        html_content = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title}</title>
-    <style>
-        body {{
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 40px;
-            color: #333;
-        }}
-        .header {{
-            border-bottom: 2px solid #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-        }}
-        .content {{
-            max-width: 800px;
-        }}
-        p {{
-            margin-bottom: 15px;
-        }}
-        .image {{
-            max-width: 100%;
-            height: auto;
-            margin: 20px 0;
-            border: 1px solid #ddd;
-            padding: 5px;
-        }}
-        table {{
-            border-collapse: collapse;
-            width: 100%;
-            margin: 20px 0;
-        }}
-        th, td {{
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }}
-        th {{
-            background-color: #f2f2f2;
-        }}
-        .header-footer {{
-            background-color: #f9f9f9;
-            padding: 10px;
-            margin: 10px 0;
-            border-left: 4px solid #007acc;
-        }}
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>{title}</h1>
-        <p><em>Converted from .docx format</em></p>
-    </div>
-    <div class="content">
-"""
-        
-        # Add headers if requested
-        if include_headers_footers:
-            # Note: Basic header/footer support - python-docx has limited access to headers/footers
-            html_content += '        <div class="header-footer"><strong>Document Header/Footer content included</strong></div>\n'
-        
-        # Process paragraphs
-        for paragraph in doc.paragraphs:
-            text = paragraph.text.strip()
-            if text:
-                # Check for heading styles
-                if paragraph.style.name.startswith('Heading'):
-                    level = paragraph.style.name.replace('Heading ', '')
-                    try:
-                        level = int(level)
-                        if level <= 6:
-                            html_content += f"        <h{level}>{html.escape(text)}</h{level}>\n"
+                        ext = self._get_image_extension(image_data)
+
+                        if images_dir is not None:
+                            # Save as external file
+                            filename = f'image_{self.image_counter:03d}.{ext}'
+                            img_path = images_dir / filename
+                            with open(img_path, 'wb') as f:
+                                f.write(image_data)
+                            rel_path = f'{images_dir.name}/{filename}'
+                            html_parts.append(
+                                f'<img src="{rel_path}" alt="Image {self.image_counter}" '
+                                f'style="max-width:100%;height:auto;" />'
+                            )
+                            self.extracted_images.append({
+                                'original_name': filename,
+                                'new_name': filename,
+                                'path': str(img_path),
+                            })
                         else:
-                            html_content += f"        <h6>{html_escape(text)}</h6>\n"
-                    except ValueError:
-                        html_content += f"        <h2>{html_escape(text)}</h2>\n"
-                else:
-                    html_content += f"        <p>{html_escape(text)}</p>\n"
-        
-        # Process tables
-        for table in doc.tables:
-            html_content += "        <table>\n"
-            for i, row in enumerate(table.rows):
-                if i == 0:
-                    html_content += "            <tr>\n"
-                    for cell in row.cells:
-                        html_content += f"                <th>{html_escape(cell.text.strip())}</th>\n"
-                    html_content += "            </tr>\n"
-                else:
-                    html_content += "            <tr>\n"
-                    for cell in row.cells:
-                        html_content += f"                <td>{html_escape(cell.text.strip())}</td>\n"
-                    html_content += "            </tr>\n"
-            html_content += "        </table>\n"
-        
-        # Add images if extracted
-        if images_dir and self.extracted_images:
-            for img in self.extracted_images:
-                rel_path = f"{images_dir.name}/{img['new_name']}"
-                html_content += f'        <img src="{rel_path}" alt="{img["original_name"]}" class="image" />\n'
-        
-        html_content += """    </div>
-</body>
-</html>"""
-        
-        return html_content
+                            # Embed as base64
+                            mime = f"image/{'jpeg' if ext == 'jpg' else ext}"
+                            b64 = base64.b64encode(image_data).decode('utf-8')
+                            src = f'data:{mime};base64,{b64}'
+                            html_parts.append(
+                                f'<img src="{src}" alt="Image {self.image_counter}" '
+                                f'style="max-width:100%;height:auto;" />'
+                            )
+                            self.extracted_images.append({
+                                'original_name': f'image_{self.image_counter}.{ext}',
+                                'new_name': f'image_{self.image_counter}.{ext}',
+                                'path': None,
+                            })
+                except Exception:
+                    pass
+
+        return ''.join(html_parts)
+
+    def _convert_paragraph(self, doc, paragraph, images_dir: Optional[Path]) -> str:
+        """Convert a single docx paragraph to an HTML element, including inline images."""
+        # Collect run text with inline styling
+        text_parts = []
+        for run in paragraph.runs:
+            text = run.text
+            if not text:
+                continue
+            text = html_escape(text)
+            style = self._get_run_style(run)
+            if style:
+                text_parts.append(f'<span style="{style}">{text}</span>')
+            else:
+                text_parts.append(text)
+
+        image_html = self._extract_paragraph_images(doc, paragraph, images_dir)
+
+        content = ''.join(text_parts)
+        if image_html:
+            content = (content + image_html) if content else image_html
+
+        if not content:
+            return '<br/>'
+
+        # Heading styles
+        style_name = paragraph.style.name
+        if style_name.startswith('Heading'):
+            level_str = style_name.replace('Heading ', '')
+            try:
+                level = min(int(level_str), 6)
+            except ValueError:
+                level = 2
+            return f'<h{level}>{content}</h{level}>'
+
+        # Paragraph alignment
+        _align_map = {
+            WD_PARAGRAPH_ALIGNMENT.CENTER: 'center',
+            WD_PARAGRAPH_ALIGNMENT.RIGHT: 'right',
+            WD_PARAGRAPH_ALIGNMENT.JUSTIFY: 'justify',
+        }
+        alignment = _align_map.get(paragraph.alignment, '')
+        if alignment:
+            return f'<p style="text-align:{alignment}">{content}</p>'
+        return f'<p>{content}</p>'
+
+    def _convert_table_to_html(self, doc, table, images_dir: Optional[Path]) -> str:
+        """Convert a docx table to HTML, with rich cell content."""
+        rows_html = []
+        for i, row in enumerate(table.rows):
+            cells_html = []
+            tag = 'th' if i == 0 else 'td'
+            for cell in row.cells:
+                cell_parts = []
+                for para in cell.paragraphs:
+                    cell_parts.append(self._convert_paragraph(doc, para, images_dir))
+                cell_content = ''.join(cell_parts) if cell_parts else '&nbsp;'
+                cells_html.append(f'<{tag}>{cell_content}</{tag}>')
+            rows_html.append('<tr>' + ''.join(cells_html) + '</tr>')
+        return '<table>\n' + '\n'.join(rows_html) + '\n</table>'
+
+    def _extract_headers_footers_html(self, doc, part: str, images_dir: Optional[Path]) -> str:
+        """
+        Extract real header or footer content from all document sections.
+        `part` is either 'header' or 'footer'.
+        Returns combined HTML string, or empty string if nothing found.
+        """
+        parts_html = []
+        try:
+            for section in doc.sections:
+                section_part = section.header if part == 'header' else section.footer
+                if section_part is None:
+                    continue
+                for para in section_part.paragraphs:
+                    if para.text.strip():
+                        parts_html.append(self._convert_paragraph(doc, para, images_dir))
+        except Exception as e:
+            print(f"Warning: Could not extract {part}: {e}")
+        return '\n'.join(parts_html)
+
+    def _convert_docx_content_to_html(self, doc, title: str, images_dir: Optional[Path],
+                                      include_headers_footers: bool) -> str:
+        """Convert .docx document content to HTML with inline images and real headers/footers."""
+
+        header_footer_css = ''
+        if include_headers_footers:
+            header_footer_css = '''
+        .document-header {
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            padding: 15px 40px;
+            margin-bottom: 20px;
+        }
+        .document-footer {
+            background: #f8f9fa;
+            border-top: 2px solid #e9ecef;
+            padding: 15px 40px;
+            margin-top: 20px;
+        }
+        @media print {
+            .document-header { position: running(header); background: white !important; border: none !important; }
+            .document-footer { position: running(footer); background: white !important; border: none !important; }
+        }'''
+
+        html_parts = [
+            '<!DOCTYPE html>',
+            '<html lang="en">',
+            '<head>',
+            '    <meta charset="UTF-8">',
+            '    <meta name="viewport" content="width=device-width, initial-scale=1.0">',
+            f'    <title>{html_escape(title)}</title>',
+            '    <style>',
+            '        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; color: #333; }',
+            '        p { margin-bottom: 15px; }',
+            '        img { max-width: 100%; height: auto; margin: 10px 0; display: block; }',
+            '        table { border-collapse: collapse; width: 100%; margin: 20px 0; }',
+            '        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }',
+            '        th { background-color: #f2f2f2; }',
+            header_footer_css,
+            '    </style>',
+            '</head>',
+            '<body>',
+        ]
+
+        # Real header content
+        if include_headers_footers:
+            headers_html = self._extract_headers_footers_html(doc, 'header', images_dir)
+            if headers_html:
+                html_parts.append('<header class="document-header">')
+                html_parts.append(headers_html)
+                html_parts.append('</header>')
+
+        html_parts.append('<main class="document-content">')
+
+        # Iterate over body elements in document order to preserve layout
+        for element in doc.element.body:
+            tag = element.tag.split('}')[-1] if '}' in element.tag else element.tag
+            if tag == 'p':
+                for para in doc.paragraphs:
+                    if para._element is element:
+                        html_parts.append(self._convert_paragraph(doc, para, images_dir))
+                        break
+            elif tag == 'tbl':
+                for table in doc.tables:
+                    if table._element is element:
+                        html_parts.append(self._convert_table_to_html(doc, table, images_dir))
+                        break
+
+        html_parts.append('</main>')
+
+        # Real footer content
+        if include_headers_footers:
+            footers_html = self._extract_headers_footers_html(doc, 'footer', images_dir)
+            if footers_html:
+                html_parts.append('<footer class="document-footer">')
+                html_parts.append(footers_html)
+                html_parts.append('</footer>')
+
+        html_parts.extend(['</body>', '</html>'])
+        return '\n'.join(html_parts)
 
 
 def main():
