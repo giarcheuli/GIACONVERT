@@ -22,7 +22,7 @@ def test_converter_modules():
         "complete": "giaconvert_complete.py"
     }
     
-    base_dir = Path(__file__).parent
+    base_dir = Path(__file__).resolve().parent.parent
     
     # Check if all converter files exist
     for name, filename in converters.items():
@@ -34,7 +34,7 @@ def test_converter_modules():
             print(f"✅ {name} converter found: {filename}")
     
     # Check if test document exists
-    test_doc = base_dir / "test_documents" / "sample_document.docx"
+    test_doc = base_dir / "Tests" / "test_documents" / "sample_document.docx"
     if not test_doc.exists():
         print(f"❌ Test document not found: {test_doc}")
         print("📝 Creating a test document...")
@@ -81,8 +81,10 @@ def test_converter_modules():
                                 html_content = ""
                             
                             # Basic validation
-                            if html_content and len(html_content) > 100:
-                                print(f"✅ {name} converter produced valid HTML output ({len(html_content)} chars)")
+                            if (html_content and "<html" in html_content.lower()
+                                    and "Test Document" in html_content
+                                    and "<table" in html_content.lower() and "<td" in html_content.lower()):
+                                print(f"✅ {name} converter preserved sample text and table content ({len(html_content)} chars)")
                                 test_results[name] = {
                                     "status": "success",
                                     "output_length": len(html_content),
@@ -118,7 +120,8 @@ def test_converter_modules():
         if status == "success":
             print(f"✅ {name.upper()}: PASSED - HTML output ({result['output_length']} chars)")
         elif status == "no_test_doc":
-            print(f"⚠️  {name.upper()}: PARTIAL - Class OK, needs test document")
+            print(f"❌ {name.upper()}: FAILED - missing test document")
+            all_passed = False
         else:
             print(f"❌ {name.upper()}: FAILED - {status}")
             if "error" in result:
@@ -208,4 +211,6 @@ def create_test_document():
         return None
 
 if __name__ == "__main__":
-    test_converter_modules()
+    results = test_converter_modules()
+    sys.exit(0 if isinstance(results, dict) and len(results) == 3
+             and all(result["status"] == "success" for result in results.values()) else 1)
